@@ -50,12 +50,12 @@ public class SecurityConfig {
             	/*.requestMatchers("/public/fct","/**").permitAll()
                 .requestMatchers("/protected/fct").authenticated()*/
             		.requestMatchers("/").permitAll()
-            		.requestMatchers("/register/user").permitAll()
-            		.requestMatchers("/public/**","/events/**").permitAll()
-            		.requestMatchers("/emprunts/**", "/livres/**", "/membres/**").hasRole("USER")
-            		.requestMatchers("/api/**").hasRole("USER")
-            		.requestMatchers("/admin/**").hasRole("ADMIN")
-            		.anyRequest().authenticated()
+            	//	.requestMatchers("/register/user").permitAll()
+            		.requestMatchers("/public/**","/events/**","/roles/**").permitAll()
+            //		.requestMatchers("/emprunts/**", "/livres/**", "/membres/**").hasRole("USER")
+            //		.requestMatchers("/api/**").hasRole("USER")
+            //		.requestMatchers("/admin/**").hasRole("ADMIN")
+            	//	.anyRequest().authenticated()
             )
            // .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .formLogin(t -> t.permitAll());

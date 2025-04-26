@@ -13,7 +13,9 @@ import com.bib.app.repository.RoleRepository;
 public class RoleService {
     
     private RoleRepository roleRepository;
-    
+    public RoleService(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
     public List<Role> getAllRoles() {
         List<Role> roles = new ArrayList<>();
         roleRepository.findAll().forEach(roles::add);

@@ -1,57 +1,45 @@
 package com.bib.app.entities;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import lombok.Data;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.index.Indexed;
+import java.util.List;
+import java.util.UUID;
 
-@RedisHash("staff")
-public class Staff implements Serializable {
-    
-    @Id
-    private String id;
-    
-    private String firstName;
-    
-    private String lastName;
-    
-    @Indexed
+@Data
+public class Staff {
+
+    private String staffId = UUID.randomUUID().toString(); // Auto-generate
+
+    private String firstname;
+    private String lastname;
     private String email;
-    
     private String phone;
-    
     private String position;
-    
-    private String skills;
-    
-    private LocalDateTime createdAt;
-    
-    private LocalDateTime updatedAt;
 
-	public String getId() {
-		return id;
+    private List<String> skills;
+
+	public String getStaffId() {
+		return staffId;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setStaffId(String staffId) {
+		this.staffId = staffId;
 	}
 
-	public String getFirstName() {
-		return firstName;
+	public String getFirstname() {
+		return firstname;
 	}
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
 	}
 
-	public String getLastName() {
-		return lastName;
+	public String getLastname() {
+		return lastname;
 	}
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
 	}
 
 	public String getEmail() {
@@ -78,28 +66,12 @@ public class Staff implements Serializable {
 		this.position = position;
 	}
 
-	public String getSkills() {
+	public List<String> getSkills() {
 		return skills;
 	}
 
-	public void setSkills(String skills) {
+	public void setSkills(List<String> skills) {
 		this.skills = skills;
 	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-    
+	
 }

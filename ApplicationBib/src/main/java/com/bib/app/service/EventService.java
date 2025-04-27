@@ -49,8 +49,6 @@ public class EventService {
     }
     
     public Event createEvent(Event event) {
-        event.setCreatedAt(LocalDateTime.now());
-        event.setUpdatedAt(LocalDateTime.now());
         return eventRepository.save(event);
     }
     
@@ -66,7 +64,6 @@ public class EventService {
             existingEvent.setStatus(eventDetails.getStatus());
             existingEvent.setRegistrationType(eventDetails.getRegistrationType());
             existingEvent.setImageUrl(eventDetails.getImageUrl());
-            existingEvent.setUpdatedAt(LocalDateTime.now());
             return eventRepository.save(existingEvent);
         });
     }

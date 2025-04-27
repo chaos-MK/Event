@@ -38,20 +38,17 @@ public class StaffService {
     }
     
     public Staff createStaff(Staff staff) {
-        staff.setCreatedAt(LocalDateTime.now());
-        staff.setUpdatedAt(LocalDateTime.now());
         return staffRepository.save(staff);
     }
     
     public Optional<Staff> updateStaff(String id, Staff staffDetails) {
         return staffRepository.findById(id).map(existingStaff -> {
-            existingStaff.setFirstName(staffDetails.getFirstName());
-            existingStaff.setLastName(staffDetails.getLastName());
+            existingStaff.setFirstname(staffDetails.getFirstname());
+            existingStaff.setLastname(staffDetails.getLastname());
             existingStaff.setEmail(staffDetails.getEmail());
             existingStaff.setPhone(staffDetails.getPhone());
             existingStaff.setPosition(staffDetails.getPosition());
             existingStaff.setSkills(staffDetails.getSkills());
-            existingStaff.setUpdatedAt(LocalDateTime.now());
             return staffRepository.save(existingStaff);
         });
     }

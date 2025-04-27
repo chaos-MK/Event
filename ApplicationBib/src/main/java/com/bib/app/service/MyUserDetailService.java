@@ -34,7 +34,7 @@ public class MyUserDetailService  implements UserDetailsService{
  
     private String[] getRoles(MyUser user) { 
         if (user.getRole() == null) { 
-            return new String[]{"USER"}; 
+            return new String[]{"ADMIN"}; 
         } 
         return user.getRole().split(","); 
     } 

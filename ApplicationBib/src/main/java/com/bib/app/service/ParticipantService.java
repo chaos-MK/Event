@@ -38,22 +38,16 @@ public class ParticipantService {
     }
     
     public Participant createParticipant(Participant participant) {
-        participant.setCreatedAt(LocalDateTime.now());
-        participant.setUpdatedAt(LocalDateTime.now());
         return participantRepository.save(participant);
     }
     
     public Optional<Participant> updateParticipant(String id, Participant participantDetails) {
         return participantRepository.findById(id).map(existingParticipant -> {
-            existingParticipant.setFirstName(participantDetails.getFirstName());
-            existingParticipant.setLastName(participantDetails.getLastName());
+            existingParticipant.setFirstname(participantDetails.getFirstname());
+            existingParticipant.setLastname(participantDetails.getLastname());
             existingParticipant.setEmail(participantDetails.getEmail());
             existingParticipant.setPhone(participantDetails.getPhone());
-            existingParticipant.setCompany(participantDetails.getCompany());
-            existingParticipant.setJobTitle(participantDetails.getJobTitle());
-            existingParticipant.setDietaryRestrictions(participantDetails.getDietaryRestrictions());
-            existingParticipant.setSpecialNeeds(participantDetails.getSpecialNeeds());
-            existingParticipant.setUpdatedAt(LocalDateTime.now());
+
             return participantRepository.save(existingParticipant);
         });
     }

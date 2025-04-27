@@ -7,13 +7,9 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.bib.app.service.MyUserDetailService;
@@ -41,7 +37,7 @@ public class SecurityConfig {
     @Bean 
     public PasswordEncoder passwordEncoder() { 
         return new BCryptPasswordEncoder(); 
-    } 
+    }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -52,6 +48,7 @@ public class SecurityConfig {
             		.requestMatchers("/").permitAll()
             	//	.requestMatchers("/register/user").permitAll()
             		.requestMatchers("/public/**","/events/**","/roles/**").permitAll()
+            		.requestMatchers("/").hasRole("ADMIN")
             //		.requestMatchers("/emprunts/**", "/livres/**", "/membres/**").hasRole("USER")
             //		.requestMatchers("/api/**").hasRole("USER")
             //		.requestMatchers("/admin/**").hasRole("ADMIN")
@@ -62,23 +59,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-    
-    /*@Bean
-    public UserDetailsService userdetails() {
-    	UserDetails user = User.builder()
-    			.username("Khalil")
-    			.password(password().encode("123"))
-    			.roles("USER")
-    			.build();
-    	
-    	UserDetails admin = User.builder()
-    			.username("Mohamed")
-    			.password(password().encode("M123"))
-    			.roles("ADMIN")
-    			.build();
-    	
-    	return new InMemoryUserDetailsManager(user,admin);
-    }*/
     
     @Bean
     public PasswordEncoder password() {

@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .requestMatchers("/protected/fct").authenticated()*/
             		.requestMatchers("/").permitAll()
             	//	.requestMatchers("/register/user").permitAll()
-            		.requestMatchers("/public/**","/events/**","/roles/**").permitAll()
+            		.requestMatchers("/participants/add","/events/getall","/login/**").permitAll()
             		.requestMatchers("/").hasRole("ADMIN")
             //		.requestMatchers("/emprunts/**", "/livres/**", "/membres/**").hasRole("USER")
             //		.requestMatchers("/api/**").hasRole("USER")

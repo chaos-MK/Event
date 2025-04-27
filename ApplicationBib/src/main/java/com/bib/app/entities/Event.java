@@ -27,7 +27,7 @@ public class Event {
 
     private Category category;
 
-    private String staffId; // Only reference staffId
+    private List<Staff> staffId; // Only reference staffId
 
     private List<Participant> participants;
 
@@ -119,11 +119,11 @@ public class Event {
 		this.category = category;
 	}
 
-	public String getStaffId() {
+	public List<Staff> getStaffId() {
 		return staffId;
 	}
 
-	public void setStaffId(String staffId) {
+	public void setStaffId(List<Staff> staffId) {
 		this.staffId = staffId;
 	}
 

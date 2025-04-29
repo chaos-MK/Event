@@ -1,63 +1,36 @@
 package com.bib.app.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import com.bib.app.entities.Participant;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.bib.app.entities.Participant;
-import com.bib.app.repository.ParticipantRepository;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ParticipantService {
-    
-    private ParticipantRepository participantRepository;
-    
-    public List<Participant> getAllParticipants() {
-        List<Participant> participants = new ArrayList<>();
-        participantRepository.findAll().forEach(participants::add);
-        return participants;
-    }
-    
-    public Optional<Participant> getParticipantById(String id) {
-        return participantRepository.findById(id);
-    }
-    
-    public Optional<Participant> getParticipantByEmail(String email) {
-        return participantRepository.findByEmail(email);
-    }
-    
-    public Iterable<Participant> getParticipantsByCompany(String company) {
-        return participantRepository.findByCompany(company);
-    }
-    
-    public Iterable<Participant> searchParticipantsByLastName(String lastName) {
-        return participantRepository.findByLastNameContaining(lastName);
-    }
-    
-    public Participant createParticipant(Participant participant) {
-        return participantRepository.save(participant);
-    }
-    
-    public Optional<Participant> updateParticipant(String id, Participant participantDetails) {
-        return participantRepository.findById(id).map(existingParticipant -> {
-            existingParticipant.setFirstname(participantDetails.getFirstname());
-            existingParticipant.setLastname(participantDetails.getLastname());
-            existingParticipant.setEmail(participantDetails.getEmail());
-            existingParticipant.setPhone(participantDetails.getPhone());
 
-            return participantRepository.save(existingParticipant);
-        });
+    private final RedisTemplate<String, Participant> redisTemplate;
+
+    @Autowired
+    public ParticipantService(RedisTemplate<String, Participant> redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
-    
-    public boolean deleteParticipant(String id) {
-        if (participantRepository.existsById(id)) {
-            participantRepository.deleteById(id);
-            return true;
-        }
-        return false;
+
+
+    public Optional<Participant> getParticipant(String eventId, String email) {
+        Participant participant = redisTemplate.opsForValue().get("event:" + eventId + ":participant:" + email);
+        return Optional.ofNullable(participant);
+    }
+
+
+    public void removeParticipant(String eventId, String email) {
+        String key = "event:" + eventId + ":participant:" + email;
+        redisTemplate.delete(key);
+        redisTemplate.opsForSet().remove("event:" + eventId + ":participants", email);
     }
 }
-

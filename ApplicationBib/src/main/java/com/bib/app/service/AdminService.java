@@ -2,47 +2,42 @@ package com.bib.app.service;
 
 import com.bib.app.entities.Admin;
 import com.bib.app.repository.AdminRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AdminService {
 
     private final AdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
 
-   // @Autowired
-    public AdminService(AdminRepository adminRepository) {
+    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
         this.adminRepository = adminRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Admin createAdmin(Admin admin) {
+        if (adminRepository.existsById(admin.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        }
+        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
         return adminRepository.save(admin);
     }
 
-    public List<Admin> getAllAdmins() {
-        return (List<Admin>) adminRepository.findAll();
-    }
-
-    public Optional<Admin> getAdminById(String id) {
-        return adminRepository.findById(id);
-    }
-
     public Admin getAdminByUsername(String username) {
-        return adminRepository.findByUsername(username);
+        return adminRepository.findById(username)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
     }
 
-    public Admin updateAdmin(String id, Admin adminDetails) {
-        if (adminRepository.existsById(id)) {
-            adminDetails.setId(id);
-            return adminRepository.save(adminDetails);
-        }
-        return null; // Handle better in a real-world application
+    public Admin updateAdmin(String username, Admin adminDetails) {
+        Admin admin = getAdminByUsername(username);
+        admin.setPassword(passwordEncoder.encode(adminDetails.getPassword()));
+        admin.setRole(adminDetails.getRole());
+        admin.setStaffIds(adminDetails.getStaffIds()); // Use consistent method
+        return adminRepository.save(admin);
     }
 
-    public void deleteAdmin(String id) {
-        adminRepository.deleteById(id);
+    public void deleteAdmin(String username) {
+        adminRepository.deleteById(username);
     }
 }

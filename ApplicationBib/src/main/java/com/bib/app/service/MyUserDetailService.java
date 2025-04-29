@@ -1,42 +1,34 @@
 package com.bib.app.service;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.bib.app.entities.MyUser;
-import com.bib.app.repository.MyUserRepository;
+import com.bib.app.entities.Admin;
+import com.bib.app.repository.AdminRepository;
 
 @Service
-public class MyUserDetailService  implements UserDetailsService{
-	@Autowired 
-    private MyUserRepository repository; 
-	
-	@Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { 
-        Optional<MyUser> user = repository.findByUsername(username); 
-        if (user.isPresent()) { 
-            var userObj = user.get(); 
-            return User.builder() 
-                    .username(userObj.getUsername()) 
-                    .password(userObj.getPassword()) 
-                    .roles(getRoles(userObj)) 
-                    .build(); 
-        } else { 
-            throw new UsernameNotFoundException(username); 
-        } 
-    } 
- 
-    private String[] getRoles(MyUser user) { 
-        if (user.getRole() == null) { 
-            return new String[]{"ADMIN"}; 
-        } 
-        return user.getRole().split(","); 
-    } 
-} 
+public class MyUserDetailService implements UserDetailsService {
 
+    private final AdminRepository adminRepository;
+
+    public MyUserDetailService(AdminRepository adminRepository) {
+        this.adminRepository = adminRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Admin admin = adminRepository.findById(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Admin not found: " + username));
+
+        return User.builder()
+                .username(admin.getUsername())
+                .password(admin.getPassword())
+                .roles(admin.getRole())
+                .build();
+    }
+}

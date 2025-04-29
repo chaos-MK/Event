@@ -1,23 +1,29 @@
 package com.bib.app.entities;
 
 import lombok.Data;
-
-import java.util.UUID;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+
 public class Participant {
-
-    private String participantId = UUID.randomUUID().toString(); // Auto-generate
-
+    private String email;  // Use email as unique identifier
     private String firstname;
     private String lastname;
-    private String email;
     private String phone;
-	public String getParticipantId() {
-		return participantId;
+	public Participant(String email2, String firstname2, String lastname2,String phone2) {
+		this.email=email2;
+		this.firstname=firstname2;
+		this.lastname=lastname2;
+		this.phone=phone2;
 	}
-	public void setParticipantId(String participantId) {
-		this.participantId = participantId;
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	public String getFirstname() {
 		return firstname;
@@ -30,12 +36,6 @@ public class Participant {
 	}
 	public void setLastname(String lastname) {
 		this.lastname = lastname;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
 	}
 	public String getPhone() {
 		return phone;

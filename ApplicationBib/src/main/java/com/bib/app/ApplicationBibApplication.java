@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.Configuration;
 
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.bib.app", "com.eventmanagement.api.config"})
 public class ApplicationBibApplication {
 
 	public static void main(String[] args) {

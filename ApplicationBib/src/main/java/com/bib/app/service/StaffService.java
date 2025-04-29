@@ -1,63 +1,81 @@
 package com.bib.app.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import com.bib.app.entities.Staff;
+import com.bib.app.repository.StaffRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.stereotype.Service;
-
-import com.bib.app.entities.Staff;
-import com.bib.app.repository.StaffRepository;
-
 @Service
 public class StaffService {
-    
-    private StaffRepository staffRepository;
-    
-    public List<Staff> getAllStaff() {
-        List<Staff> staffList = new ArrayList<>();
-        staffRepository.findAll().forEach(staffList::add);
-        return staffList;
+
+    private final StaffRepository staffRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    public StaffService(StaffRepository staffRepository, 
+                       RedisTemplate<String, Object> redisTemplate) {
+        this.staffRepository = staffRepository;
+        this.redisTemplate = redisTemplate;
     }
-    
+
+    public Staff createStaff(Staff staff) {
+        Staff saved = staffRepository.save(staff);
+        updateAvailabilityIndex(saved);
+        updateSkillsIndex(saved);
+        return saved;
+    }
+
+    public List<Staff> getAllStaff() {
+        return (List<Staff>) staffRepository.findAll();
+    }
+
     public Optional<Staff> getStaffById(String id) {
         return staffRepository.findById(id);
     }
-    
-    public Optional<Staff> getStaffByEmail(String email) {
-        return staffRepository.findByEmail(email);
+
+    public List<Staff> getAvailableStaff() {
+        return staffRepository.findByAvailability(true);
     }
-    
-    public Iterable<Staff> getStaffBySkill(String skill) {
-        return staffRepository.findBySkillsContaining(skill);
+
+    public Staff updateStaff(String id, Staff staffDetails) {
+        return staffRepository.findById(id)
+            .map(existing -> {
+                existing.setFirstname(staffDetails.getFirstname());
+                existing.setLastname(staffDetails.getLastname());
+                existing.setEmail(staffDetails.getEmail());
+                existing.setPhone(staffDetails.getPhone());
+                existing.setPosition(staffDetails.getPosition());
+                existing.setAvailability(staffDetails.getAvailability());
+                existing.setSkills(staffDetails.getSkills());
+                
+                Staff updated = staffRepository.save(existing);
+                updateAvailabilityIndex(updated);
+                updateSkillsIndex(updated);
+                return updated;
+            })
+            .orElse(null);
     }
-    
-    public Iterable<Staff> getStaffByPosition(String position) {
-        return staffRepository.findByPosition(position);
+
+    private void updateAvailabilityIndex(Staff staff) {
+        String key = "staff:available";
+        if (Boolean.TRUE.equals(staff.getAvailability())) {
+            redisTemplate.opsForSet().add(key, staff.getStaffId());
+        } else {
+            redisTemplate.opsForSet().remove(key, staff.getStaffId());
+        }
     }
-    
-    public Staff createStaff(Staff staff) {
-        return staffRepository.save(staff);
-    }
-    
-    public Optional<Staff> updateStaff(String id, Staff staffDetails) {
-        return staffRepository.findById(id).map(existingStaff -> {
-            existingStaff.setFirstname(staffDetails.getFirstname());
-            existingStaff.setLastname(staffDetails.getLastname());
-            existingStaff.setEmail(staffDetails.getEmail());
-            existingStaff.setPhone(staffDetails.getPhone());
-            existingStaff.setPosition(staffDetails.getPosition());
-            existingStaff.setSkills(staffDetails.getSkills());
-            return staffRepository.save(existingStaff);
+
+    private void updateSkillsIndex(Staff staff) {
+        staff.getSkills().forEach(skill -> {
+            String key = "skill:" + skill + ":staff";
+            redisTemplate.opsForSet().add(key, staff.getStaffId());
         });
     }
-    
-    public boolean deleteStaff(String id) {
-        if (staffRepository.existsById(id)) {
-            staffRepository.deleteById(id);
-            return true;
-        }
-        return false;
+
+    public void deleteStaff(String id) {
+        staffRepository.deleteById(id);
     }
 }

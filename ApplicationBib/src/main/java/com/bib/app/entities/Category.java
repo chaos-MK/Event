@@ -1,13 +1,21 @@
 package com.bib.app.entities;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.util.UUID;
 
-@Data
-public class Category {
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-    private String categoryId = UUID.randomUUID().toString(); // Auto-generate
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@RedisHash("category")
+public class Category {
+    @Id
+    private String categoryId = UUID.randomUUID().toString();
     private String type;
 	public String getCategoryId() {
 		return categoryId;

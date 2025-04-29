@@ -1,7 +1,10 @@
 package com.bib.app.controller;
 
 import com.bib.app.entities.Event;
+import com.bib.app.entities.Participant;
 import com.bib.app.service.EventService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,15 +14,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/api/events")
 @CrossOrigin(origins = "*")
 public class EventController {
 
     private final EventService eventService;
 
-    // Constructor for injecting the service
+    @Autowired
     public EventController(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @PostMapping
+    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(eventService.createEvent(event));
     }
 
     @GetMapping
@@ -34,50 +43,35 @@ public class EventController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<Event>> getEventsByCategory(@PathVariable String category) {
-        return ResponseEntity.ok(eventService.getEventsByCategory(category));
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Event>> getEventsByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(eventService.getEventsByStatus(status));
-    }
-
-    @GetMapping("/upcoming")
-    public ResponseEntity<List<Event>> getUpcomingEvents() {
-        return ResponseEntity.ok(eventService.getUpcomingEvents());
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<Event>> searchEventsByTitle(@RequestParam String title) {
-        return ResponseEntity.ok(eventService.searchEventsByTitle(title));
-    }
-
-    @GetMapping("/date-range")
-    public ResponseEntity<List<Event>> getEventsByDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        return ResponseEntity.ok(eventService.getEventsByDateRange(startDate, endDate));
-    }
-
-    @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.createEvent(event));
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<Event>> getEventsByCategory(@PathVariable String categoryId) {
+        return ResponseEntity.ok(eventService.getEventsByCategory(categoryId));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Event> updateEvent(@PathVariable String id, @RequestBody Event eventDetails) {
-        return eventService.updateEvent(id, eventDetails)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Event> updateEvent(@PathVariable String id, @RequestBody Event event) {
+        return eventService.updateEvent(id, event)
+            .map(updatedEvent -> ResponseEntity.ok(updatedEvent))
+            .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable String id) {
-        if (eventService.deleteEvent(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        eventService.deleteEvent(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{eventId}/staff/{staffId}")
+    public ResponseEntity<Void> assignStaff(@PathVariable String eventId, 
+                                          @PathVariable String staffId) {
+        eventService.assignStaffToEvent(eventId, staffId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{eventId}/participants")
+    public ResponseEntity<Void> addParticipant(@PathVariable String eventId,
+                                             @RequestBody Participant participant) {
+        eventService.addParticipant(eventId, participant);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
